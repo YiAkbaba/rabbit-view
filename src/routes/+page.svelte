@@ -5,10 +5,14 @@
 
 	let currentRabbitId = $state();
 	let newName = $state('');
+	let wrongRabbitName = $derived(newName[0] !== 'J' && newName.length > 0);
 
 	async function editRabbit() {
-		await store.editRabbit(currentRabbitId, newName);
-		newName = '';
+		if (newName[0] === 'J') {
+			await store.editRabbit(currentRabbitId, newName);
+			newName = '';
+		} else {
+		}
 	}
 
 	// unser "Konstruktor" (lifecycle hook) - läuft jedesmal, wenn die Seite bzw. die Komponente geladen wird:
@@ -51,11 +55,32 @@
 	<div class="modal-box">
 		<h3 class="text-lg font-bold">Edit rabbit with ID {currentRabbitId}</h3>
 		<input type="text" placeholder="new rabbit name" bind:value={newName} class="text-black" />
+		{#if wrongRabbitName}
+			<div role="alert" class="mt-4 alert alert-error">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="h-6 w-6 shrink-0 stroke-current"
+					fill="none"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+					/>
+				</svg>
+				<span>Watch out! Rabbit names must start with "J"!</span>
+			</div>
+		{/if}
 		<div class="modal-action">
 			<form method="dialog" class="flex gap-2">
 				<!-- if there is a button in form, it will close the modal -->
-				<button class="btn">Cancel</button><button class="btn btn-primary" onclick={editRabbit}
-					>Change Name!</button
+				<button class="btn">Cancel</button>
+				<button
+					class="btn btn-primary"
+					onclick={editRabbit}
+					disabled={wrongRabbitName || newName === ''}>Change Name!</button
 				>
 			</form>
 		</div>
