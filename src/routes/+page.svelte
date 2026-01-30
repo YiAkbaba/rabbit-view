@@ -11,42 +11,49 @@
 		if (newName[0] === 'J') {
 			await store.editRabbit(currentRabbitId, newName);
 			newName = '';
-		} else {
 		}
 	}
 
-	// unser "Konstruktor" (lifecycle hook) - läuft jedesmal, wenn die Seite bzw. die Komponente geladen wird:
 	$effect(() => {
 		store.listRabbits();
-		$inspect('🐰: ', store.rabbits);
 	});
 </script>
 
-<!-- unser Template / HTML-Teil der Seite bzw. der Komponente -->
 <h1 class="text-3xl">Our Rabbits</h1>
 
-<div class="grid w-[200px] grid-cols-[32px_1fr_32px_32px] items-end">
+<div class="grid w-[200px] grid-cols-[32px_1fr_1fr_32px_32px] items-end">
 	<div>Nr.</div>
 	<div>Name</div>
+	<div>Hasenbau</div>
 	<div></div>
 	<div></div>
 
-	{#each store.rabbits as rabbit, index}
+	{#each store.rabbits as rabbit, index (rabbit.id)}
 		<div class="pr-3 text-right">{index + 1}</div>
 		<div class="pr-3">{rabbit.name}</div>
+
+		{#if rabbit.expand?.rabbithole}
+			<div class="pr-3">{rabbit.expand.rabbithole.name}</div>
+		{:else}
+			<div></div>
+		{/if}
+<a href={"/" + rabbit.id}>
 		<div class="pr-3">
 			<button
-				onclick={() => {
-					currentRabbitId = rabbit.id;
-					editingModal.showModal();
-				}}
-				class="cursor-pointer"><Icon icon="carbon:edit" width="16" height="16" /></button
+				
+				class="cursor-pointer"
 			>
+				<Icon icon="carbon:edit" width="16" height="16" />
+			</button>
 		</div>
+</a>
 		<div>
-			<button onclick={() => store.deleteRabbit(rabbit.id)} class="cursor-pointer text-red-500"
-				>x</button
+			<button
+				onclick={() => store.deleteRabbit(rabbit.id)}
+				class="cursor-pointer text-red-500"
 			>
+				x
+			</button>
 		</div>
 	{/each}
 </div>
@@ -54,7 +61,14 @@
 <dialog id="editingModal" class="modal">
 	<div class="modal-box">
 		<h3 class="text-lg font-bold">Edit rabbit with ID {currentRabbitId}</h3>
-		<input type="text" placeholder="new rabbit name" bind:value={newName} class="text-black" />
+
+		<input
+			type="text"
+			placeholder="new rabbit name"
+			bind:value={newName}
+			class="text-black"
+		/>
+
 		{#if wrongRabbitName}
 			<div role="alert" class="mt-4 alert alert-error">
 				<svg
@@ -73,18 +87,20 @@
 				<span>Watch out! Rabbit names must start with "J"!</span>
 			</div>
 		{/if}
+
 		<div class="modal-action">
 			<form method="dialog" class="flex gap-2">
-				<!-- if there is a button in form, it will close the modal -->
 				<button class="btn">Cancel</button>
 				<button
 					class="btn btn-primary"
 					onclick={editRabbit}
-					disabled={wrongRabbitName || newName === ''}>Change Name!</button
+					disabled={wrongRabbitName || newName === ''}
 				>
+					Change Name!
+				</button>
 			</form>
 		</div>
 	</div>
 </dialog>
 
-<RabbitForm></RabbitForm>
+<a href="/add" class="btn btn-primary">New Rabbit!</a>
